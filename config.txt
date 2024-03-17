@@ -1,0 +1,19 @@
+{
+  "database": "example_database",
+  "hashMethods": [
+    [
+      "AzureVision",
+      "src/hash_methods/AzureVision/analyze-img.txt",
+      "C:/Program Files/Git/usr/bin/bash.exe",
+      "-c"
+    ],
+    [
+      "hashMethodName",
+      "/path/to/that/hashingProgram",
+      "/path/to/interpreter",
+      "--intepreterOptions"
+    ]
+  ],
+  "def": 0,
+  "pubRepo": "https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection/main/data/imgs"
+}
