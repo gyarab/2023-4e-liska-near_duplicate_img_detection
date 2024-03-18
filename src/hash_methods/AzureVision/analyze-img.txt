@@ -1,18 +1,28 @@
 #!/usr/bin/bash
 # key_1
-key="$(cat ./resource_key.txt)"
+
+key="$(cat $(pwd)/src/hash_methods/AzureVision/resource_key.txt)"
 endpoint="https://analyze-image-foxik.cognitiveservices.azure.com/"
+echo $key
 
 # Code to call Computer Vision service for image analysis
 # HH make it so output can be processed
 
 # HH maybe the whole path is given? yup it should be
-img_remote_directory="https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection/blob/main/data/imgs"
 img_file="resurrected.jpg"
-if [ $# -gt 1 ]; then
-    img_file=$1
-	img_remote_directory=$(echo $2 | sed "s/\(github.com\/[^/]*\/[^/]*\/\)/\1blob\//g")
+destination="tree/master/data/imgs"
+repository="https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection"
+
+if [ "$#" -eq 3 ]; then
+	img_file=$1
+	destination=$2
+	repository=$3
+else
+	echo "Usage: $0 <directory> <destination> <repository>"
+    #exit 1
 fi
+
+
 
 
 
@@ -21,21 +31,22 @@ fi
 #fi	
 
 # HH replace with your server
-img="$img_remote_directory/$img_file?raw=true"
+img="$repository/$destination/$img_file?raw=true"
+echo $img;
 headers=()
 headers+=("Ocp-Apim-Subscription-Key: $key")
 headers+=("Content-Type: application/json")
 
 body="{\"url\": \"$img\"}"
 
-echo "Analyzing image..."
+#echo "Analyzing image..."
 result=$(curl -X POST -H "${headers[0]}" -H "${headers[1]}" -d "$body" "$endpoint/vision/v3.2/analyze?visualFeatures=Categories,Description,Objects")
 
-: <<'DEBUG'
+#: <<'DEBUG'
 # Debug statement to print the result
 echo "API Result:"
 echo "$result"
-DEBUG
+#DEBUG
 # Check if the result is not empty before processing with jq
 if [ -n "$result" ]; then
     analysis=$(echo "$result" | jq -r '. | @json')

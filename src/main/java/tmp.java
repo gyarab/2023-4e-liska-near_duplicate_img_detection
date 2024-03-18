@@ -1,12 +1,27 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class tmp {
     public static void main(String[] args) throws IOException {
+
+        ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "src/hash_methods/AzureVision/analyze-img.txt");
+        //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
+        pb.directory(new File("./"));
+        Process process = pb.start();
+
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        while ( (line = reader.readLine()) != null) {
+            builder.append(line);
+            builder.append(System.getProperty("line.separator"));
+        }
+        String result = builder.toString();
+        System.out.println(result);
         //GatedQuerry gatedQuerry = new GatedQuerry("C:/Users/foxjo/Pictures");
         //gatedQuerry.run();
 

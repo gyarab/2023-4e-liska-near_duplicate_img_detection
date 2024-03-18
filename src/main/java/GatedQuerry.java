@@ -7,9 +7,9 @@ import java.util.Scanner;
 public class GatedQuerry implements Runnable {
     private static boolean anyRunning = false;
     private final Queue<String> fileQueue;
-    private final String directoryPath, pubRepo;
+    private String directoryPath, pubRepo;
     private String[] hashMethodSpecs;
-    private final int LIMIT_PER_MINUTE = 15;
+    private final int LIMIT_PER_MINUTE = 5;
     private final Config config;
 
 
@@ -29,7 +29,9 @@ public class GatedQuerry implements Runnable {
     }
 
     public synchronized void fillQueue() {
-        try{//upload_dir
+        //upload_dir
+        // = directoryPath.replaceAll(".*/data/imgs/","/data/imgs/");
+        try{
             ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c",
                     "upload_dir.txt " + directoryPath + " " + "./data/ " + pubRepo);
             pb.directory(new File("./"));
@@ -57,9 +59,11 @@ public class GatedQuerry implements Runnable {
     }
 
     public synchronized void pop() throws IOException {
+        //String directoryName = directoryPath.replaceAll(".*/","/");
         if(!fileQueue.isEmpty()) {
             //System.out.println(fileQueue.poll());
-            ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3], hashMethodSpecs[1]);
+            ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
+                    hashMethodSpecs[1] + " " + fileQueue.poll() + " tree/master/data/imgs " + pubRepo);
             //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
             pb.directory(new File("./"));
             Process process = pb.start();

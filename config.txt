@@ -15,5 +15,5 @@
     ]
   ],
   "def": 0,
-  "pubRepo": "https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection/main/data/imgs"
+  "pubRepo": "https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection"
 }
