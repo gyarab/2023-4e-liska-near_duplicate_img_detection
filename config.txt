@@ -4,7 +4,7 @@
     [
       "AzureVision",
       "src/hash_methods/AzureVision/analyze-img.txt",
-      "C:/Program Files/Git/usr/bin/bash.exe",
+      "C:/Program Files/Git/bin/bash.exe",
       "-c"
     ],
     [

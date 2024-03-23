@@ -34,7 +34,7 @@ public class GatedQuerry implements Runnable {
         System.out.println(directoryPath.replace("\\", "/"));
         try{
             ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
-                    + directoryPath.replace("\\", "/").replace(" ", "đa") + " " + pubRepo).inheritIO();
+                    + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + pubRepo).inheritIO();
             //pb.directory(new File("./"));
             Process process = pb.start();
         }catch (Exception e){

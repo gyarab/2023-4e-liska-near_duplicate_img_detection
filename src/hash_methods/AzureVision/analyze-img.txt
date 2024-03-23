@@ -1,16 +1,13 @@
 #!/usr/bin/bash
 # key_1
-
 key="$(cat $(pwd)/src/hash_methods/AzureVision/resource_key.txt)"
 endpoint="https://analyze-image-foxik.cognitiveservices.azure.com/"
-echo $key
+#echo $key
 
 # Code to call Computer Vision service for image analysis
-# HH make it so output can be processed
 
-# HH maybe the whole path is given? yup it should be
-img_file="resurrected.jpg"
-destination="tree/master/data/imgs"
+img_file="resurrected.jpeg"
+destination="master/data/imgs"
 repository="https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection"
 
 if [ "$#" -eq 3 ]; then
@@ -23,16 +20,9 @@ else
 fi
 
 
-
-
-
-#if ! [ $2 =~ '^[0-9]+$' ]; then
-#	$2=0
-#fi	
-
-# HH replace with your server
-img="$repository/$destination/$img_file?raw=true"
-echo $img;
+img="$repository/$destination/$img_file"
+img=$(echo $img | sed "s/https:\/\/github.com/https:\/\/raw.githubusercontent.com/")
+#echo $img
 headers=()
 headers+=("Ocp-Apim-Subscription-Key: $key")
 headers+=("Content-Type: application/json")
@@ -56,7 +46,6 @@ else
 fi
 
 #exec > output.log
-#output_file="./data/tmp/did_tmp$2"
 
 echo -e "\n[[Description]]{"
 echo "$analysis" | jq -r '.description.captions[].text'

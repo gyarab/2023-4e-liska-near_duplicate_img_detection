@@ -6,10 +6,13 @@ import java.util.ArrayList;
 
 public class tmp {
     public static void main(String[] args) throws IOException {
+        System.out.println(System.getProperty("user.dir").replace("\\", "/"));
 
-        ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "src/hash_methods/AzureVision/analyze-img.txt");
+        /*
+        //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "$(pwd)/lsTest.sh").inheritIO();
+        ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "src/hash_methods/AzureVision/analyze-img.txt").inheritIO();
         //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
-        pb.directory(new File("./"));
+        //pb.directory(new File("../Derpin/testOtherCode"));
         Process process = pb.start();
 
         BufferedReader reader =
@@ -22,6 +25,8 @@ public class tmp {
         }
         String result = builder.toString();
         System.out.println(result);
+        */
+
         //GatedQuerry gatedQuerry = new GatedQuerry("C:/Users/foxjo/Pictures");
         //gatedQuerry.run();
 

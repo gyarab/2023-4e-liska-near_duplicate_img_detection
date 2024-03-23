@@ -59,6 +59,8 @@ public class FXMLDocumentController implements Initializable {
         enterHashMethod.setText(config.hashMethods.get(config.def)[0]);
         enterPubRepo.setText(config.pubRepo);
 
+        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\Airbnb Data\\Training Data\\house-exterior");
+
         //grid.setGridLinesVisible(true);
         //Piece k = new Piece("Knight");
         //grid.add(k, 4, 4);
