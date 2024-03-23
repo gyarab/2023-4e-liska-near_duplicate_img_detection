@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 public class GatedQuerry implements Runnable {
     private static boolean anyRunning = false;
+
+    private boolean uploadSuccessful = false;
     private final Queue<String> fileQueue;
     private String directoryPath, pubRepo;
     private String[] hashMethodSpecs;
@@ -37,6 +39,8 @@ public class GatedQuerry implements Runnable {
                     + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + pubRepo).inheritIO();
             //pb.directory(new File("./"));
             Process process = pb.start();
+            process.waitFor();
+            if(process.exitValue() == 0) uploadSuccessful = true;
         }catch (Exception e){
             System.out.println(e);
             System.out.println("could not ulpoad directory");
@@ -91,8 +95,20 @@ public class GatedQuerry implements Runnable {
         }
 
         fillQueue();
+        //wait for it to also upload
+            long startTime = System.currentTimeMillis();
+            long timeout = 10000; // Timeout of 10 seconds
+            long elapsedTime = 0;
+            while (!uploadSuccessful && elapsedTime < timeout) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
         while (!fileQueue.isEmpty()) {
-            // Call pop method, but not more than 15 times during the last minute
+            // Call pop method, but not more than LIMIT times during the last minute
             for (int i = 0; i < LIMIT_PER_MINUTE && !fileQueue.isEmpty(); i++) {
                 try {
                     pop();
