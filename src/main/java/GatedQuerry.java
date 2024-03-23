@@ -31,10 +31,11 @@ public class GatedQuerry implements Runnable {
     public synchronized void fillQueue() {
         //upload_dir
         // = directoryPath.replaceAll(".*/data/imgs/","/data/imgs/");
+        System.out.println(directoryPath.replace("\\", "/"));
         try{
-            ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c",
-                    "upload_dir.txt " + directoryPath + " " + "./data/ " + pubRepo);
-            pb.directory(new File("./"));
+            ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
+                    + directoryPath.replace("\\", "/").replace(" ", "đa") + " " + pubRepo).inheritIO();
+            //pb.directory(new File("./"));
             Process process = pb.start();
         }catch (Exception e){
             System.out.println(e);
@@ -46,7 +47,7 @@ public class GatedQuerry implements Runnable {
             if (files != null) {
                 for (File file : files) {
                     if (file.isFile()) {
-                        fileQueue.offer(file.getName());
+                        fileQueue.offer(file.getParentFile().getName() + "/" + file.getName());
                         if(pubRepo != null){
                         }
                     }
@@ -63,7 +64,7 @@ public class GatedQuerry implements Runnable {
         if(!fileQueue.isEmpty()) {
             //System.out.println(fileQueue.poll());
             ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
-                    hashMethodSpecs[1] + " " + fileQueue.poll() + " tree/master/data/imgs " + pubRepo);
+                    hashMethodSpecs[1] + " " + fileQueue.poll() + " master/data/imgs" + " " + pubRepo);
             //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
             pb.directory(new File("./"));
             Process process = pb.start();
