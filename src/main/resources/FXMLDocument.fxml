@@ -7,13 +7,17 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="stage" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="675.0" prefWidth="1058.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FXMLDocumentController">
    <children>
       <SplitPane dividerPositions="0.7234848484848485" layoutY="-2.0" prefHeight="675.0" prefWidth="1058.0">
         <items>
-            <ScrollPane prefHeight="200.0" prefWidth="200.0" />
+            <ScrollPane prefHeight="200.0" prefWidth="200.0">
+               <content>
+                  <FlowPane fx:id="boardOfDuplicates" prefHeight="2000.0" prefWidth="740.0" />
+               </content></ScrollPane>
             <VBox prefHeight="673.0" prefWidth="456.0">
                <children>
                   <VBox prefHeight="99.0" prefWidth="241.0" spacing="1.0">
@@ -28,7 +32,7 @@
                   </VBox>
                   <VBox prefHeight="69.0" prefWidth="241.0" spacing="1.0">
                      <children>
-                        <Label text="Public reposirory" />
+                        <Label text="Middlepoint" />
                         <TextField fx:id="enterPubRepo" />
                      </children>
                      <padding>
@@ -37,16 +41,24 @@
                   </VBox>
                   <VBox prefHeight="69.0" prefWidth="241.0" spacing="1.0">
                      <children>
-                        <VBox prefHeight="69.0" prefWidth="241.0" spacing="1.0">
-                           <children>
-                              <Label text="Using hashing function" />
-                              <TextField fx:id="enterHashMethod" />
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-                           </padding>
-                        </VBox>
+                        <Label text="Using hashing function" />
+                        <TextField fx:id="enterHashMethod" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
+                     </padding>
+                  </VBox>
+                  <VBox prefHeight="69.0" prefWidth="241.0" spacing="1.0">
+                     <children>
                         <Button onAction="#runNDID" text="Run duplicate detection" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
+                     </padding>
+                  </VBox>
+                  <VBox prefHeight="69.0" prefWidth="241.0" spacing="1.0">
+                     <children>
+                        <Button onAction="#viewNextCollision" text="View next duplicates" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />

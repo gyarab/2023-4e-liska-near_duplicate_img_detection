@@ -32,11 +32,11 @@ body="{\"url\": \"$img\"}"
 #echo "Analyzing image..."
 result=$(curl -X POST -H "${headers[0]}" -H "${headers[1]}" -d "$body" "$endpoint/vision/v3.2/analyze?visualFeatures=Categories,Description,Objects")
 
-#: <<'DEBUG'
+: <<'DEBUG'
 # Debug statement to print the result
 echo "API Result:"
 echo "$result"
-#DEBUG
+DEBUG
 # Check if the result is not empty before processing with jq
 if [ -n "$result" ]; then
     analysis=$(echo "$result" | jq -r '. | @json')
@@ -45,8 +45,7 @@ else
     exit 1
 fi
 
-#exec > output.log
-
+string=$(
 echo -e "\n[[Description]]{"
 echo "$analysis" | jq -r '.description.captions[].text'
 echo "}"
@@ -58,5 +57,7 @@ echo "}"
 echo -e "\n[[Tags]]{"
 echo "$analysis" | jq -r '.description.tags[]'
 echo "}"
+)
 
-echo
+echo $string >&2
+echo $string | md5sum | awk '{print $1}'

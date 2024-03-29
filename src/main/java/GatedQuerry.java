@@ -4,21 +4,24 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class GatedQuerry implements Runnable {
+public class GatedQuerry extends Thread {
     private static boolean anyRunning = false;
 
     private boolean uploadSuccessful = false;
     private final Queue<String> fileQueue;
     private String directoryPath, pubRepo;
     private String[] hashMethodSpecs;
-    private final int LIMIT_PER_MINUTE = 5;
+    private final int LIMIT_PER_MINUTE = 15;
     private final Config config;
+    private boolean remoteSelected = false;
+    private FXMLDocumentController controller;
 
 
-    public GatedQuerry(String directoryPath, String hashMethod, String pubRepo) {
+    public GatedQuerry(String directoryPath, String hashMethod, String pubRepo, FXMLDocumentController controller) {
         this.directoryPath = directoryPath;
         this.pubRepo = pubRepo;
         this.fileQueue = new LinkedList<>();
+        this.controller = controller;
 
         this.config = Config.getInstance();
         int hashMethodNumber = config.def;
@@ -34,16 +37,18 @@ public class GatedQuerry implements Runnable {
         //upload_dir
         // = directoryPath.replaceAll(".*/data/imgs/","/data/imgs/");
         System.out.println(directoryPath.replace("\\", "/"));
-        try{
-            ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
-                    + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + pubRepo).inheritIO();
-            //pb.directory(new File("./"));
-            Process process = pb.start();
-            process.waitFor();
-            if(process.exitValue() == 0) uploadSuccessful = true;
-        }catch (Exception e){
-            System.out.println(e);
-            System.out.println("could not ulpoad directory");
+        if (remoteSelected){
+            try{
+                ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
+                        + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + pubRepo).inheritIO();
+                //pb.directory(new File("./"));
+                Process process = pb.start();
+                process.waitFor();
+                if(process.exitValue() == 0) uploadSuccessful = true;
+            }catch (Exception e){
+                System.out.println(e);
+                System.out.println("could not ulpoad directory");
+            }
         }
         try {
             File directory = new File(directoryPath);
@@ -51,9 +56,9 @@ public class GatedQuerry implements Runnable {
             if (files != null) {
                 for (File file : files) {
                     if (file.isFile()) {
-                        fileQueue.offer(file.getParentFile().getName() + "/" + file.getName());
-                        if(pubRepo != null){
-                        }
+                        if(remoteSelected) fileQueue.offer(file.getParentFile().getName() + "/" + file.getName());
+                        if(!remoteSelected) fileQueue.offer(file.getAbsolutePath().replace("\\", "/").replace(" ", "đ"));
+                        System.out.println(file.getName());
                     }
                 }
             }
@@ -65,24 +70,33 @@ public class GatedQuerry implements Runnable {
 
     public synchronized void pop() throws IOException {
         //String directoryName = directoryPath.replaceAll(".*/","/");
-        if(!fileQueue.isEmpty()) {
-            //System.out.println(fileQueue.poll());
-            ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
-                    hashMethodSpecs[1] + " " + fileQueue.poll() + " master/data/imgs" + " " + pubRepo);
-            //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
-            pb.directory(new File("./"));
-            Process process = pb.start();
+        if(fileQueue.isEmpty()) {
+            return;
+        }
+        String filepath = fileQueue.poll();
+        ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
+                hashMethodSpecs[1] + " " + filepath + " master/data/imgs " + pubRepo).inheritIO();
+        //System.out.println(hashMethodSpecs[2]+" "+ hashMethodSpecs[3]+" "+
+        //        hashMethodSpecs[1] + " " + filepath + " master/data/imgs " + pubRepo);
+        //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
+        pb.directory(new File("./"));
+        Process process = pb.start();
 
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder builder = new StringBuilder();
-            String line = null;
-            while ( (line = reader.readLine()) != null) {
-                builder.append(line);
-                builder.append(System.getProperty("line.separator"));
-            }
-            String result = builder.toString();
-            System.out.println(result);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        while ( (line = reader.readLine()) != null) {
+            builder.append(line);
+            builder.append(System.getProperty("line.separator"));
+        }
+        System.out.println("pop");
+        String result = builder.toString();
+        System.out.println(result);
+
+        try (CollisionHandler ch = CollisionHandler.getInstance()){
+            ch.addPossibleCollision(directoryPath+"/"+filepath, hashMethodSpecs[0], result);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -97,11 +111,12 @@ public class GatedQuerry implements Runnable {
         fillQueue();
         //wait for it to also upload
             long startTime = System.currentTimeMillis();
-            long timeout = 10000; // Timeout of 10 seconds
+            long timeout = 3000; // Timeout of 3 seconds
             long elapsedTime = 0;
             while (!uploadSuccessful && elapsedTime < timeout) {
                 try {
                     Thread.sleep(1000);
+                    elapsedTime += 1000;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -122,6 +137,11 @@ public class GatedQuerry implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            controller.viewNextCollision();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         anyRunning = false;
     }

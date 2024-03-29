@@ -1,9 +1,15 @@
 {
-  "database": "example_database",
+  "database": "img_hashes.db",
   "hashMethods": [
     [
       "AzureVision",
       "src/hash_methods/AzureVision/analyze-img.txt",
+      "C:/Program Files/Git/bin/bash.exe",
+      "-c"
+    ],
+    [
+      "AzureVisionNoMiddlepoint",
+      "src/hash_methods/AzureVision/analyze-img2.sh",
       "C:/Program Files/Git/bin/bash.exe",
       "-c"
     ],
@@ -14,6 +20,6 @@
       "--intepreterOptions"
     ]
   ],
-  "def": 0,
+  "def": 1,
   "pubRepo": "https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection"
 }

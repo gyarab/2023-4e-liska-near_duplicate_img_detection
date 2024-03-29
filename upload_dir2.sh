@@ -3,20 +3,19 @@
 # Check if correct number of arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <directory> <repository>"
-	echo $1 $2 all $3 $4
     exit 1
 fi
 
 directory=$(echo $1 | sed "s/đ/ /g")
-echo arg1= $directory
+#echo $directory
 destination="./data/imgs"
 repository=$2
-pwd
+#pwd
 # Copy directory to destination
 if [ ! -d "$destination/$directory" ]; then
 	cp -r "$directory" "$destination" || { echo "Error: Failed to copy directory."; exit 1; }
 fi
-pwd
+#pwd
 # Initialize git repository if not already initialized
 if [ ! -d .git ]; then
 	git init || { echo "Error: Failed to initialize git repository."; exit 1; }
@@ -24,7 +23,7 @@ fi
 
 # Change directory to destination
 cd "$destination" || { echo "Error: Failed to change directory."; exit 1; }
-pwd
+#pwd
 # Add files to git
 git add . || { echo "Error: Failed to add files to git."; exit 1; }
 

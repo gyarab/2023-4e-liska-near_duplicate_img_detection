@@ -1,6 +1,5 @@
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -9,8 +8,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
@@ -18,7 +18,7 @@ public class FXMLDocumentController implements Initializable {
     Config config;
     
     @FXML
-    private GridPane grid;
+    private FlowPane boardOfDuplicates;
     @FXML
     private TextField enterDirectory, enterPubRepo, enterHashMethod;
     //public static String enteredDir;
@@ -48,8 +48,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     public void runNDID(ActionEvent event){
         System.out.println("runndid");
-        GatedQuerry gatedQuerry = new GatedQuerry(enterDirectory.getText(), enterHashMethod.getText(), enterPubRepo.getText());
-        gatedQuerry.run();
+        GatedQuerry gatedQuerry = new GatedQuerry(enterDirectory.getText(), enterHashMethod.getText(), enterPubRepo.getText(), this);
+        gatedQuerry.start();
     }
     
     @Override
@@ -59,11 +59,53 @@ public class FXMLDocumentController implements Initializable {
         enterHashMethod.setText(config.hashMethods.get(config.def)[0]);
         enterPubRepo.setText(config.pubRepo);
 
-        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\Airbnb Data\\Training Data\\house-exterior");
+        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\Airbnb Data\\Training Data\\entrance");
 
         //grid.setGridLinesVisible(true);
         //Piece k = new Piece("Knight");
         //grid.add(k, 4, 4);
-    }    
-    
+    }
+
+    @FXML
+    public void viewNextCollision() throws Exception {
+        CollisionHandler ch = CollisionHandler.getInstance();
+        ImgViewMaker.addAll(boardOfDuplicates, ch.getIdxsOfNextCollision());
+        ch.close();
+    }
+
+    @FXML
+    public void deleteImg(ActionEvent event) {
+        ImgHashesTableConnection conn = ImgHashesTableConnection.getInstance();
+
+        Node node = (Node) event.getSource();
+        Parent parent = node.getParent();
+        Label idxLabel = (Label) parent.lookup("#idxLabel");
+        int idx = Integer.getInteger(idxLabel.getText());
+        conn.remove(idx);
+
+        Button button = (Button) parent.lookup("#delete");
+        String str = button.getText();
+        button.setText("DELETED");
+
+        File file = new File(conn.getPath(idx));
+        if (file.exists()) file.delete();
+
+        conn.close();
+    }
+
+    @FXML
+    public void ignoreImg(ActionEvent event) {
+        ImgHashesTableConnection conn = ImgHashesTableConnection.getInstance();
+
+        Node node = (Node) event.getSource();
+        Parent parent = node.getParent();
+        Label idx = (Label) parent.lookup("#idxLabel");
+        conn.setIgnore(Integer.getInteger(idx.getText()));
+
+        Button button = (Button) parent.lookup("#ignore");
+        String str = button.getText();
+        button.setText(str.equals("Ignore") ? "IGNORED" : "Ignore");
+
+        conn.close();
+    }
 }

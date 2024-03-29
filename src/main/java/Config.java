@@ -16,16 +16,6 @@ public class Config {
     int def; //default
     String pubRepo;
 
-    public String getPubRepo() {return pubRepo;}
-    public String getDatabase() {
-        return database;
-    }
-    public ArrayList<String[]> getHashMethods() {
-        return hashMethods;
-    }
-    public int getDef() {
-        return def;
-    }
 
     public static Config getInstance() {
         Path path = Paths.get("config.txt");
