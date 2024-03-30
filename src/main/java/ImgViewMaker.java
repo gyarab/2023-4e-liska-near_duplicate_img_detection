@@ -7,6 +7,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ImgViewMaker {
     public static void addAll(FlowPane board, int[] idxs){
@@ -23,7 +25,11 @@ public class ImgViewMaker {
                 imgView.setImage(image);
                 //set filename
                 Label fileName = (Label) p.lookup("#fileName");
-                fileName.setText(conn.getPath(idx).replaceAll(".*[\\/]([^\\/]*$)", "\1"));
+                String name = conn.getPath(idx);
+                Pattern pattern = Pattern.compile(".*[\\\\/]([^\\\\/]+)$");
+                Matcher matcher = pattern.matcher(name);
+                if (matcher.find()) name = matcher.group(1);
+                fileName.setText(name);
                 //set idx
                 Label idxLabel = (Label) p.lookup("#idx");
                 idxLabel.setText(""+idx);
@@ -32,12 +38,10 @@ public class ImgViewMaker {
                 delete.setText("Delete");
                 //set ignore
                 Button ignore = (Button) p.lookup("#ignore");
-                delete.setText(conn.isIgnore(idx) ? "IGNORED" : "Ignore");
+                ignore.setText(conn.isIgnore(idx) ? "IGNORED" : "Ignore");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        conn.close();
     }
 }

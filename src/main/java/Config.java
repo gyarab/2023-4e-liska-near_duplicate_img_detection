@@ -13,12 +13,13 @@ public class Config {
     static Config config;
     String database;
     ArrayList<String[]> hashMethods;
-    int def; //default
+    int def; //default method
     String pubRepo;
 
 
     public static Config getInstance() {
         Path path = Paths.get("config.txt");
+        if(Config.config != null) return Config.config;
         try {
             String fileContents = new String(Files.readAllBytes(path), "UTF-8");
 

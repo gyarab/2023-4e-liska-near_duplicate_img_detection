@@ -1,12 +1,11 @@
+import javafx.application.Platform;
+
 import java.io.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 public class GatedQuerry extends Thread {
     private static boolean anyRunning = false;
-
     private boolean uploadSuccessful = false;
     private final Queue<String> fileQueue;
     private String directoryPath, pubRepo;
@@ -36,7 +35,6 @@ public class GatedQuerry extends Thread {
     public synchronized void fillQueue() {
         //upload_dir
         // = directoryPath.replaceAll(".*/data/imgs/","/data/imgs/");
-        System.out.println(directoryPath.replace("\\", "/"));
         if (remoteSelected){
             try{
                 ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
@@ -57,7 +55,7 @@ public class GatedQuerry extends Thread {
                 for (File file : files) {
                     if (file.isFile()) {
                         if(remoteSelected) fileQueue.offer(file.getParentFile().getName() + "/" + file.getName());
-                        if(!remoteSelected) fileQueue.offer(file.getAbsolutePath().replace("\\", "/").replace(" ", "đ"));
+                        if(!remoteSelected) fileQueue.offer(file.getAbsolutePath());
                         System.out.println(file.getName());
                     }
                 }
@@ -69,17 +67,14 @@ public class GatedQuerry extends Thread {
     }
 
     public synchronized void pop() throws IOException {
-        //String directoryName = directoryPath.replaceAll(".*/","/");
         if(fileQueue.isEmpty()) {
             return;
         }
         String filepath = fileQueue.poll();
+        String filepathWithReplacent = filepath.replace("\\", "/").replace(" ", "đ");
         ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
-                hashMethodSpecs[1] + " " + filepath + " master/data/imgs " + pubRepo).inheritIO();
-        //System.out.println(hashMethodSpecs[2]+" "+ hashMethodSpecs[3]+" "+
-        //        hashMethodSpecs[1] + " " + filepath + " master/data/imgs " + pubRepo);
-        //ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/usr/bin/bash.exe", "-c", "pwd");
-        pb.directory(new File("./"));
+                hashMethodSpecs[1] + " " + filepathWithReplacent + " master/data/imgs " + pubRepo);//inheritIO()
+        //pb.directory(new File("./"));
         Process process = pb.start();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -93,11 +88,8 @@ public class GatedQuerry extends Thread {
         String result = builder.toString();
         System.out.println(result);
 
-        try (CollisionHandler ch = CollisionHandler.getInstance()){
-            ch.addPossibleCollision(directoryPath+"/"+filepath, hashMethodSpecs[0], result);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        if(remoteSelected) CollisionHandler.getInstance().addPossibleCollision(directoryPath+"/"+filepath, hashMethodSpecs[0], result);
+        else CollisionHandler.getInstance().addPossibleCollision(filepath, hashMethodSpecs[0], result);
     }
 
     @Override
@@ -109,7 +101,7 @@ public class GatedQuerry extends Thread {
         }
 
         fillQueue();
-        //wait for it to also upload
+        /* wait for it to also upload
             long startTime = System.currentTimeMillis();
             long timeout = 3000; // Timeout of 3 seconds
             long elapsedTime = 0;
@@ -121,14 +113,13 @@ public class GatedQuerry extends Thread {
                     e.printStackTrace();
                 }
             }
-
+        */
         while (!fileQueue.isEmpty()) {
             // Call pop method, but not more than LIMIT times during the last minute
             for (int i = 0; i < LIMIT_PER_MINUTE && !fileQueue.isEmpty(); i++) {
                 try {
                     pop();
                 } catch (IOException e) {
-                    //System.out.println("couldnt convert to hash");
                     System.out.println(e);
                 }
             }
@@ -138,22 +129,13 @@ public class GatedQuerry extends Thread {
                 e.printStackTrace();
             }
         }
-        try {
-            controller.viewNextCollision();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Platform.runLater(() -> {
+            try {
+                controller.viewNextCollision();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         anyRunning = false;
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
-        //File myObj = new File("dirName.txt");
-        //Scanner sc = new Scanner(myObj);
-        /*
-        String s = FXMLDocumentController.enteredDir;
-        GatedQuerry gatedQuerry = new GatedQuerry(s);
-        System.out.println("nya " + s);
-        Thread thread = new Thread(gatedQuerry);
-        thread.start();*/
     }
 }

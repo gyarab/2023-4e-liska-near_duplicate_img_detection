@@ -4,13 +4,8 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class ImgHashesTableConnection implements AutoCloseable{
-    private Connection connection;
-    private Statement statement;
+public class ImgHashesTableConnection{
     private Config config;
-    //String imgHashesTable = "imgHashesTable";
-    //String collisionsTable = "collisionsTable";
-    private String imgHashesTable = "imgHashesTable";
 
     public static ImgHashesTableConnection getInstance(){
         ImgHashesTableConnection conn = new ImgHashesTableConnection();
@@ -19,16 +14,12 @@ public class ImgHashesTableConnection implements AutoCloseable{
     }
 
     public void add(String path, String methodName, String hash){
-        try {
-            statement.executeUpdate("INSERT INTO imgHashesTable (path, "+methodName+")"+
-                    "VALUES ('"+path+"', '"+hash+"');");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT count(*) AS count FROM imgHashesTable WHERE path='"+path+"';");){
 
-            ResultSet rs = statement.executeQuery("SELECT * FROM imgHashesTable;");
-            while (rs.next()) {
-                System.out.println("path: " + rs.getString("path"));
-                System.out.println(config.hashMethods.get(config.def)[0]+ ": " + rs.getString(config.hashMethods.get(config.def)[0]));
-                // Add more print statements for additional columns if needed
-                System.out.println("-----------------------------------");
+            if(rs.getInt("count") == 0){
+                DatabaseConnection.getStatement().executeUpdate(
+                        "INSERT INTO imgHashesTable (path, " + methodName + ") VALUES ('" + path + "', '" + hash + "');");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -36,15 +27,16 @@ public class ImgHashesTableConnection implements AutoCloseable{
     }
 
     public void remove(int idx){
-        try {//rm file
-            ResultSet rs = statement.executeQuery("SELECT path FROM imgHashesTable WHERE idx="+idx+";");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT * FROM imgHashesTable;");){
+            //rm file
             String path = rs.getString("path");
-            Files.deleteIfExists(Paths.get(path));
-            //rm form table
-            statement.executeUpdate("DELETE FROM imgHashesTable WHERE idx="+idx+";");
+            System.out.println("remove - path: " + path);
+            System.out.println(Files.deleteIfExists(Paths.get(path)));
 
-            //ResultSet rs2 = statement.executeQuery("SELECT * FROM "+ tableName +";");
-            //System.out.println(rs2.getString("path"));
+            //rm form table
+            DatabaseConnection.getStatement().executeUpdate("DELETE FROM imgHashesTable WHERE idx=" + idx + ";");
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -53,9 +45,9 @@ public class ImgHashesTableConnection implements AutoCloseable{
     }
 
     public String getPath(int idx){
-        try {
-            ResultSet rs = statement.executeQuery("SELECT path FROM imgHashesTable WHERE idx="+idx+";");
-            return rs.getString("path");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT path FROM imgHashesTable WHERE idx="+idx+";");){
+            return  rs.getString("path");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -63,19 +55,20 @@ public class ImgHashesTableConnection implements AutoCloseable{
 
 
     public void setIgnore(int idx){
-        try {
-            ResultSet rs = statement.executeQuery("SELECT ignore FROM imgHashesTable WHERE idx="+idx+";");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT ignore FROM imgHashesTable WHERE idx="+idx+";");){
             int ignore = rs.getInt("ignore");
             ignore = (ignore == 0) ? 1 : 0;
-            statement.executeUpdate("UPDATE imgHashesTable SET ignore="+ignore+",WHERE idx="+idx+";");
+            DatabaseConnection.getStatement().executeUpdate(
+                    "UPDATE imgHashesTable SET ignore="+ignore+" WHERE idx="+idx+";");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public boolean isIgnore(int idx){
-        try {
-            ResultSet rs = statement.executeQuery("SELECT ignore FROM imgHashesTable WHERE idx="+idx+";");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT ignore FROM imgHashesTable WHERE idx="+idx+";");){
             return (rs.getInt("ignore") == 1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -83,8 +76,8 @@ public class ImgHashesTableConnection implements AutoCloseable{
     }
 
     public int[] getIdxsOFCollision(String methodName, String hash){
-        try {
-            ResultSet rs = statement.executeQuery("SELECT idx FROM imgHashesTable WHERE "+methodName+"='"+hash+"';");
+        try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                "SELECT idx FROM imgHashesTable WHERE "+methodName+"='"+hash+"';");){
 
             ArrayList<Integer> integerList = new ArrayList<>();
             while (rs.next()) {
@@ -114,7 +107,7 @@ public class ImgHashesTableConnection implements AutoCloseable{
             }
             System.out.println("--------------------------------------");
             *////
-            statement.executeUpdate("create table if not exists imgHashesTable " +
+            DatabaseConnection.getStatement().executeUpdate("create table if not exists imgHashesTable " +
                     "(idx integer NOT NULL, " +
                     "path string NOT NULL, " +
                     "ignore boolean DEFAULT 0 NOT NULL, " +
@@ -123,18 +116,18 @@ public class ImgHashesTableConnection implements AutoCloseable{
             System.out.println(e.getMessage());
         }
         for (int i = 0; i < config.hashMethods.size(); i++) {
-            try { //if not exists
-                ResultSet rs = statement.executeQuery("SELECT COUNT(*) AS num_columns\n" +
-                        "FROM pragma_table_info('imgHashesTable')\n" +
-                        "WHERE name = '"+ config.hashMethods.get(i)[0] +"';");
+            try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
+                    "SELECT COUNT(*) AS num_columns\n" +
+                    "FROM pragma_table_info('imgHashesTable') WHERE name = '"+ config.hashMethods.get(i)[0] +"';");){
+                //if not exists
                 int count = -1; // Default value if no result is found
                 if (rs.next()) {
                     count = rs.getInt("num_columns");
                     if(count != 0) continue;
                 }//add that column
-                statement.executeUpdate("ALTER TABLE imgHashesTable " +
+                DatabaseConnection.getStatement().executeUpdate("ALTER TABLE imgHashesTable " +
                         " ADD COLUMN " + config.hashMethods.get(i)[0] + " string;");
-                statement.executeUpdate("CREATE INDEX " + config.hashMethods.get(i)[0]+"IDX" +
+                DatabaseConnection.getStatement().executeUpdate("CREATE INDEX " + config.hashMethods.get(i)[0]+"IDX" +
                         " ON imgHashesTable ("+config.hashMethods.get(i)[0]+")");
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -143,7 +136,7 @@ public class ImgHashesTableConnection implements AutoCloseable{
 
     }
 
-
+/*
     public void close(){
         try {
             if(connection != null)
@@ -154,9 +147,11 @@ public class ImgHashesTableConnection implements AutoCloseable{
             System.err.println(e.getMessage());
         }
     }
+*/
 
     private ImgHashesTableConnection() {
         this.config = Config.getInstance();
+        /*
         try {
             // create a database connection
             this.connection = DriverManager.getConnection("jdbc:sqlite:"+config.database);
@@ -164,6 +159,6 @@ public class ImgHashesTableConnection implements AutoCloseable{
             statement.setQueryTimeout(30);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 }

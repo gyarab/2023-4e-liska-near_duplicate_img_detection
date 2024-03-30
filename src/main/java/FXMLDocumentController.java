@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.DirectoryChooser;
@@ -21,7 +20,6 @@ public class FXMLDocumentController implements Initializable {
     private FlowPane boardOfDuplicates;
     @FXML
     private TextField enterDirectory, enterPubRepo, enterHashMethod;
-    //public static String enteredDir;
 
     @FXML
     private void searchDirectory(ActionEvent event) throws IOException {
@@ -37,12 +35,7 @@ public class FXMLDocumentController implements Initializable {
         }else{
             String s = selectedDirectory.getAbsolutePath();
             enterDirectory.setText(s);
-            //enteredDir = s;
-            //FileWriter myWriter = new FileWriter("dirName.txt");
-            //myWriter.write(s);
-            //myWriter.close();
         }
-        //Paths.get(first, more)
     }
 
     @FXML
@@ -55,57 +48,19 @@ public class FXMLDocumentController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         config = Config.getInstance();
-        //System.out.println("config.pubRepo = " + config.pubRepo);
+
         enterHashMethod.setText(config.hashMethods.get(config.def)[0]);
         enterPubRepo.setText(config.pubRepo);
 
-        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\Airbnb Data\\Training Data\\entrance");
-
-        //grid.setGridLinesVisible(true);
-        //Piece k = new Piece("Knight");
-        //grid.add(k, 4, 4);
+        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\jaj - kopie");
     }
 
     @FXML
     public void viewNextCollision() throws Exception {
         CollisionHandler ch = CollisionHandler.getInstance();
+        boardOfDuplicates.getChildren().clear();
         ImgViewMaker.addAll(boardOfDuplicates, ch.getIdxsOfNextCollision());
-        ch.close();
+        //ch.close();
     }
 
-    @FXML
-    public void deleteImg(ActionEvent event) {
-        ImgHashesTableConnection conn = ImgHashesTableConnection.getInstance();
-
-        Node node = (Node) event.getSource();
-        Parent parent = node.getParent();
-        Label idxLabel = (Label) parent.lookup("#idxLabel");
-        int idx = Integer.getInteger(idxLabel.getText());
-        conn.remove(idx);
-
-        Button button = (Button) parent.lookup("#delete");
-        String str = button.getText();
-        button.setText("DELETED");
-
-        File file = new File(conn.getPath(idx));
-        if (file.exists()) file.delete();
-
-        conn.close();
-    }
-
-    @FXML
-    public void ignoreImg(ActionEvent event) {
-        ImgHashesTableConnection conn = ImgHashesTableConnection.getInstance();
-
-        Node node = (Node) event.getSource();
-        Parent parent = node.getParent();
-        Label idx = (Label) parent.lookup("#idxLabel");
-        conn.setIgnore(Integer.getInteger(idx.getText()));
-
-        Button button = (Button) parent.lookup("#ignore");
-        String str = button.getText();
-        button.setText(str.equals("Ignore") ? "IGNORED" : "Ignore");
-
-        conn.close();
-    }
 }
