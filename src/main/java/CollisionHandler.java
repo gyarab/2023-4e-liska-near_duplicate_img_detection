@@ -22,18 +22,17 @@ public class CollisionHandler{
 
     public int[] getIdxsOfNextCollision() {
         try (ResultSet rs = DatabaseConnection.getConnection().createStatement().executeQuery(
-                "SELECT count(*) AS count FROM collisionsTable;")) {
+                "SELECT * FROM collisionsTable;")) {
             int[] arr = new int[0];
             ArrayList<Integer> integerList = new ArrayList<>();
             boolean allIgnored = true;
 
-            if (/*rs.next() && */rs.getInt("count") == 0) allIgnored = false; //will not search through empty
+            //if (/*rs.next() && */rs.getInt("count") == 0) allIgnored = false; //will not search through empty
 
-            while (allIgnored) {
-                try (ResultSet innerRs = DatabaseConnection.getConnection().createStatement().executeQuery(
-                        "SELECT * FROM collisionsTable LIMIT 1;")) {
-                    String methodName = innerRs.getString("hashMethod");
-                    String hash = innerRs.getString("hash");
+            while (rs.next()) {
+                try {
+                    String methodName = rs.getString("hashMethod");
+                    String hash = rs.getString("hash");
                     arr = conn.getIdxsOFCollision(methodName, hash);
 
                     for (int i = 0; i < arr.length; i++) {
@@ -42,7 +41,9 @@ public class CollisionHandler{
                     if (allIgnored) {
                         DatabaseConnection.getStatement().executeUpdate("DELETE FROM collisionsTable " +
                                 "WHERE hashMethod='" + methodName + "' AND hash='" + hash + "';");
-                    }
+                    } else return arr;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
             }
             return arr;
