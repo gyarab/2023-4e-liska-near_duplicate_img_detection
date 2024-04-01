@@ -14,7 +14,7 @@ public class Config {
     String database;
     ArrayList<String[]> hashMethods;
     int def; //default method
-    String pubRepo;
+    String middlePoint;
 
 
     public static Config getInstance() {

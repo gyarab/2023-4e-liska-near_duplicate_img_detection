@@ -19,7 +19,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private FlowPane boardOfDuplicates;
     @FXML
-    private TextField enterDirectory, enterPubRepo, enterHashMethod;
+    private TextField enterDirectory, enterMiddlePoint, enterHashMethod;
 
     @FXML
     private void searchDirectory(ActionEvent event) throws IOException {
@@ -41,7 +41,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     public void runNDID(ActionEvent event){
         System.out.println("runndid");
-        GatedQuerry gatedQuerry = new GatedQuerry(enterDirectory.getText(), enterHashMethod.getText(), enterPubRepo.getText(), this);
+        GatedQuerry gatedQuerry = new GatedQuerry(enterDirectory.getText(), enterHashMethod.getText(), enterMiddlePoint.getText(), this);
         gatedQuerry.start();
     }
     
@@ -50,7 +50,7 @@ public class FXMLDocumentController implements Initializable {
         config = Config.getInstance();
 
         enterHashMethod.setText(config.hashMethods.get(config.def)[0]);
-        enterPubRepo.setText(config.pubRepo);
+        enterMiddlePoint.setText(config.middlePoint);
 
         enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\jaj - kopie");
     }

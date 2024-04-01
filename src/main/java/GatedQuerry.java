@@ -8,7 +8,7 @@ public class GatedQuerry extends Thread {
     private static boolean anyRunning = false;
     private boolean uploadSuccessful = false;
     private final Queue<String> fileQueue;
-    private String directoryPath, pubRepo;
+    private String directoryPath, middlePoint;
     private String[] hashMethodSpecs;
     private final int LIMIT_PER_MINUTE = 15;
     private final Config config;
@@ -16,9 +16,9 @@ public class GatedQuerry extends Thread {
     private FXMLDocumentController controller;
 
 
-    public GatedQuerry(String directoryPath, String hashMethod, String pubRepo, FXMLDocumentController controller) {
+    public GatedQuerry(String directoryPath, String hashMethod, String middlePoint, FXMLDocumentController controller) {
         this.directoryPath = directoryPath;
-        this.pubRepo = pubRepo;
+        this.middlePoint = middlePoint;
         this.fileQueue = new LinkedList<>();
         this.controller = controller;
 
@@ -38,7 +38,7 @@ public class GatedQuerry extends Thread {
         if (remoteSelected){
             try{
                 ProcessBuilder pb = new ProcessBuilder("C:/Program Files/Git/bin/bash.exe", "-c", "./upload_dir2.sh "
-                        + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + pubRepo).inheritIO();
+                        + directoryPath.replace("\\", "/").replace(" ", "đ") + " " + middlePoint).inheritIO();
                 //pb.directory(new File("./"));
                 Process process = pb.start();
                 process.waitFor();
@@ -73,7 +73,7 @@ public class GatedQuerry extends Thread {
         String filepath = fileQueue.poll();
         String filepathWithReplacent = filepath.replace("\\", "/").replace(" ", "đ");
         ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
-                hashMethodSpecs[1] + " " + filepathWithReplacent + " master/data/imgs " + pubRepo);//inheritIO()
+                hashMethodSpecs[1] + " " + filepathWithReplacent + " master/data/imgs " + middlePoint);//inheritIO()
         //pb.directory(new File("./"));
         Process process = pb.start();
 
