@@ -73,7 +73,7 @@ public class GatedQuerry extends Thread {
         String filepath = fileQueue.poll();
         String filepathWithReplacent = filepath.replace("\\", "/").replace(" ", "đ");
         ProcessBuilder pb = new ProcessBuilder(hashMethodSpecs[2], hashMethodSpecs[3],
-                hashMethodSpecs[1] + " " + filepathWithReplacent + " master/data/imgs " + middlePoint);//inheritIO()
+                hashMethodSpecs[1] + " " + filepathWithReplacent + " master/data/imgs " + middlePoint);//.inheritIO();
         //pb.directory(new File("./"));
         Process process = pb.start();
 

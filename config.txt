@@ -14,12 +14,18 @@
       "-c"
     ],
     [
+      "img2soundex",
+      "src/hash_methods/AzureVision/img2soundex.sh",
+      "C:/Program Files/Git/bin/bash.exe",
+      "-c"
+    ],
+    [
       "hashMethodName",
       "/path/to/that/hashingProgram",
       "/path/to/interpreter",
       "--intepreterOptions"
     ]
   ],
-  "def": 1,
+  "def": 2,
   "middlePoint": "https://github.com/gyarab/2023-4e-liska-near_duplicate_img_detection"
 }

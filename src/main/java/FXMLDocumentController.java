@@ -52,7 +52,7 @@ public class FXMLDocumentController implements Initializable {
         enterHashMethod.setText(config.hashMethods.get(config.def)[0]);
         enterMiddlePoint.setText(config.middlePoint);
 
-        enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\jaj - kopie");
+        //enterDirectory.setText("C:\\Users\\foxjo\\Documents\\4.E\\dup_image_datasets\\jaj - kopie");
     }
 
     @FXML

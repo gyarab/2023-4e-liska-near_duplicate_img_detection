@@ -29,11 +29,10 @@ else
     exit 1
 fi
 
-string="
-$(echo -e "\n[[Description]]{"
-echo "$analysis" | jq -r '.description.captions[].text'
-echo "}")
-"
+string="$(echo "$analysis" | jq -r '.description.captions[].text')"
+string=$(echo $string | sed "s/^a //")
 
 echo "$string" >&2
-echo "$string" | md5sum | awk '{print $1}'
+cd src/hash_methods/AzureVision/
+java Soundex $string
+#echo "$string" | md5sum | awk '{print $1}'
