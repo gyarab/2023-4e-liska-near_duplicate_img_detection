@@ -21,6 +21,11 @@ public class ImgHashesTableConnection{
                 DatabaseConnection.getStatement().executeUpdate(
                         "INSERT INTO imgHashesTable (path, " + methodName + ") VALUES ('" + path + "', '" + hash + "');");
             }
+            else{
+                DatabaseConnection.getStatement().executeUpdate(
+                        "UPDATE imgHashesTable SET " + methodName + " = '" + hash + "' " +
+                        "WHERE path = '" + path + "'");
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -107,11 +112,14 @@ public class ImgHashesTableConnection{
             }
             System.out.println("--------------------------------------");
             *////
-            DatabaseConnection.getStatement().executeUpdate("create table if not exists imgHashesTable " +
+            DatabaseConnection.getStatement().executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS imgHashesTable " +
                     "(idx integer NOT NULL, " +
                     "path string NOT NULL, " +
                     "ignore boolean DEFAULT 0 NOT NULL, " +
-                    "PRIMARY KEY (idx))");
+                    "PRIMARY KEY (idx));" +
+                    "CREATE INDEX IF NOT EXISTS path_index ON imgHashesTable (path);");
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
